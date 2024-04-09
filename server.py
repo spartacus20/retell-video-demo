@@ -13,8 +13,8 @@ twilio_client = TwilioClient()
 retell = Retell(api_key= os.getenv('RETELL_API_KEY'))
 
 
-#Mofify the phone number.
-twilio_client.register_phone_agent("+441865951774", os.getenv('RETELL_AGENT_ID'))
+#Mofify the phone number for inbound calls.
+twilio_client.register_phone_agent("", os.getenv('RETELL_AGENT_ID'))
 
 
 
@@ -27,6 +27,7 @@ async def handle_twilio_voice_webhook(request: Request, agent_id_path: str):
         # Check if it is machine
         post_data = await request.form()
         if 'AnsweredBy' in post_data and post_data['AnsweredBy'] == "machine_start":
+            print(post_data['AnsweredBy'])
             twilio_client.end_call(post_data['CallSid'])
             return PlainTextResponse("")
         elif 'AnsweredBy' in post_data:

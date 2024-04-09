@@ -1,12 +1,13 @@
 from twilio.rest import Client
-
+from dotenv import load_dotenv
 import os
 
-
+load_dotenv()
 class TwilioClient:
+
     def __init__(self):
         self.client = Client(
-            "ACe92c9f54f41380286d50ba2fd179e1ce", "49fb1b87c7a5cf047da80060d84d1f1f"
+            os.environ["TWILIO_ACCOUNT_ID"], os.environ["TWILIO_AUTH_TOKEN"]
         )
 
     def end_call(self, sid):

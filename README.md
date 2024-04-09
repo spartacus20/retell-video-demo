@@ -25,13 +25,7 @@ python -m uvicorn server:app --reload --port=8080
 ```
 
 You should see a fowarding address like
-`https://dc14-2601-645-c57f-8670-9986-5662-2c9a-adbd.ngrok-free.app`, and you
-are going to take the IP address, prepend it with wss, postpend with
-`llm-websocket` path and use that in the [dashboard](https://beta.retellai.com/dashboard) to create a new `agent`. Now
-the `agent` you created should connect with your localhost.
-
-The custom LLM URL would look like
-`wss://dc14-2601-645-c57f-8670-9986-5662-2c9a-adbd.ngrok-free.app/llm-websocket`
+`https://dc14-2601-645-c57f-8670-9986-5662-2c9a-adbd.ngrok-free.app`, and you put on .env
 
 ### Optional: Phone Call Features via Twilio
 
@@ -55,8 +49,3 @@ To ues these features, follow these steps:
 7. (optional) Call `end_call` to end this on-going call.
 
 8. Call `create_phone_call` to start a call with caller & callee number, and your agent Id. This call would use the agent id supplied, and ignore the agent id you set up in step 3 or 4. It automatically hang up if machine/voicemail/IVR is detected. To turn it off, remove "machineDetection, asyncAmd" params.
-
-## Run in prod
-
-To run in prod, you probably want to customize your LLM solution, host the code
-in a cloud, and use that IP to create agent.

@@ -16,10 +16,14 @@ retell = Retell(api_key= os.getenv('RETELL_API_KEY'))
 #Mofify the phone number for inbound calls.
 twilio_client.register_phone_agent("", os.getenv('RETELL_AGENT_ID'))
 
-
-
-
 load_dotenv(override=True)
+
+@app.post("/outbound-call")
+async def handle_twilio_voice_webhook(request: Request):
+    body = await request.json()
+    to_number = body.get('to_number')
+    twilio_client.create_phone_call("", to_number, os.environ['RETELL_AGENT_ID'])#from,to
+    return PlainTextResponse("Done")
 
 @app.post("/twilio-voice-webhook/{agent_id_path}")
 async def handle_twilio_voice_webhook(request: Request, agent_id_path: str):

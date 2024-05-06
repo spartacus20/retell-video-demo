@@ -42,7 +42,6 @@ class TwilioClient:
 
     def create_phone_call(self, from_number, to_number, agent_id, custom_variables):
 
-        #To avoid the TypeError exception if there's no custom_variable
         if not isinstance(custom_variables, dict):
             custom_variables = {}
 

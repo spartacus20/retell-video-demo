@@ -31,7 +31,26 @@ python -m uvicorn server:app --reload --port=8080
 You should see a fowarding address like
 `https://dc14-2601-645-c57f-8670-9986-5662-2c9a-adbd.ngrok-free.app`, and you put on .env
 
+## Structure for outbound call Api 
+
+to_number - This is a text field where always has to be with the country code. Ex: +351 16516546815
+custom_variables - this is an object
+
+Examples: 
+```bash
+{
+  "to_number":  "+3516969694"
+  "custom_variables":
+   {
+    "name": "pepe"
+   }
+}
+```
+
+And then in your Retell Prompt you should add {{name}} 
+
 ## Tutorial 
 
 [Video](https://www.youtube.com/watch?v=Z5l54C3b6Ks) 
+
 

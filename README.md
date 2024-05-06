@@ -1,3 +1,5 @@
+![RetellAi](https://bookface-images.s3.amazonaws.com/logos/1a8537326cec1508a5051c913e288dcb0859143f.png)
+
 # retell-vide-demo
 
 This is a sample demo repo to show how to have your own LLM plugged into Retell.

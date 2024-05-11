@@ -1,3 +1,5 @@
+![RetellAi](https://bookface-images.s3.amazonaws.com/logos/1a8537326cec1508a5051c913e288dcb0859143f.png)
+
 # retell-vide-demo
 
 This is a sample demo repo to show how to have your own LLM plugged into Retell.
@@ -18,6 +20,8 @@ pip3 install -r requirements.txt
 ngrok http 8080
 ```
 
+Note: If you have your server hosted just change NGROK_IP_ADDRESS for your domain ip address. For example https://yourdomain.com
+
 4. Start the websocket server
 
 ```bash
@@ -27,17 +31,26 @@ python -m uvicorn server:app --reload --port=8080
 You should see a fowarding address like
 `https://dc14-2601-645-c57f-8670-9986-5662-2c9a-adbd.ngrok-free.app`, and you put on .env
 
-### Phone Call Features via Twilio
+## Structure for outbound call Api 
 
-The `twilio_server.py` contains helper functions you could utilize to create phone numbers, tie agent to a number,
-make a phone call with an agent, etc. Here we assume you already created agent from last step, and have `agent id` ready.
+to_number - This is a text field where always has to be with the country code. Ex: +351 16516546815
+custom_variables - this is an object
 
-To ues these features, follow these steps:
+Examples: 
+```bash
+{
+  "to_number":  "+3516969694"
+  "custom_variables":
+   {
+    "name": "pepe"
+   }
+}
+```
 
-1. Put your ngrok ip address into `.env`, it would be something like `https://dc14-2601-645-c57f-8670-9986-5662-2c9a-adbd.ngrok-free.app`.
+And then in your Retell Prompt you should add {{name}} 
 
-2. (optional) Call `create_phone_number` to get a new number and associate with an agent id. This phone number now can handle inbound calls as long as this server is running.
+## Tutorial 
 
-3. (optional) Call `end_call` to end this on-going call.
+[Video](https://www.youtube.com/watch?v=Z5l54C3b6Ks) 
 
-4. Call `create_phone_call` to start a call with caller & callee number, and your agent Id. This call would use the agent id supplied, and ignore the agent id you set up in step 3 or 4. It automatically hang up if machine/voicemail/IVR is detected. To turn it off, remove "machineDetection, asyncAmd" params.
+

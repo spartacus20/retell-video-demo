@@ -1,6 +1,7 @@
 from twilio.rest import Client
 from dotenv import load_dotenv
 import os
+import urllib
 
 load_dotenv()
 class TwilioClient:
@@ -39,10 +40,17 @@ class TwilioClient:
         except Exception as err:
             print(err)
 
-    def create_phone_call(self, from_number, to_number, agent_id):
+    def create_phone_call(self, from_number, to_number, agent_id, custom_variables):
+
+        #Avoid errors.
+        if not isinstance(custom_variables, dict):
+            custom_variables = {}
+
+        query_string = urllib.parse.urlencode(custom_variables)
+
         try:
             self.client.calls.create(
-                url=f"{os.environ['NGROK_IP_ADDRESS']}/twilio-voice-webhook/{agent_id}",
+                url=f"{os.environ['NGROK_IP_ADDRESS']}/twilio-voice-webhook/{agent_id}?{query_string}",
                 to=to_number,
                 from_=from_number,
             )

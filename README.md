@@ -49,6 +49,12 @@ Examples:
 
 And then in your Retell Prompt you should add {{name}} 
 
+## Webhook 
+
+You can use Make (Formelly Integromat), Zapier  or anthoer webhook that you have. 
+
+Configure de env variable called "MAKE_WEBHOOK_URL". 
+
 ## Tutorial 
 
 [Video](https://www.youtube.com/watch?v=Z5l54C3b6Ks) 

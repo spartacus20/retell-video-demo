@@ -1,12 +1,13 @@
-import urllib.parse
-from dotenv import load_dotenv
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, PlainTextResponse
-from twilio.twiml.voice_response import VoiceResponse
-from retell import Retell
-from app.twilio_server import TwilioClient
 import os
 import urllib
+import urllib.parse
+from retell import Retell
+from dotenv import load_dotenv
+from fastapi import FastAPI, Request
+from app.twilio_server import TwilioClient
+from app.webhook import router as webhook_router
+from twilio.twiml.voice_response import VoiceResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 
 app = FastAPI()
@@ -19,12 +20,16 @@ twilio_client.register_phone_agent(os.getenv("PHONE_NUMBER"), os.getenv('RETELL_
 
 load_dotenv(override=True)
 
+#Routers
+app.include_router(webhook_router)
+
 
 @app.post("/outbound-call")
 async def handle_twilio_voice_webhook(request: Request):
     body = await request.json()
     to_number = body.get('to_number')
-    twilio_client.create_phone_call(os.getenv("PHONE_NUMBER"), to_number, os.environ['RETELL_AGENT_ID'])#from,to
+    custom_variables = {}
+    twilio_client.create_phone_call(os.getenv("PHONE_NUMBER"), to_number, os.environ['RETELL_AGENT_ID'], custom_variables)#from,to
     return PlainTextResponse("Done")
 
 

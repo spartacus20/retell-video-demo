@@ -28,7 +28,7 @@ app.include_router(webhook_router)
 async def handle_twilio_voice_webhook(request: Request):
     body = await request.json()
     to_number = body.get('to_number')
-    custom_variables = {}
+    custom_variables = body.get('custom_variables', None)
     twilio_client.create_phone_call(os.getenv("PHONE_NUMBER"), to_number, os.environ['RETELL_AGENT_ID'], custom_variables)#from,to
     return PlainTextResponse("Done")
 

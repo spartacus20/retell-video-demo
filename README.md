@@ -53,6 +53,18 @@ And then in your Retell Prompt you should add {{name}}
 
 You can use Make (Formelly Integromat), Zapier  or anthoer webhook that you have. 
 
+
+## Call Status
+
+You can access the twilio call status by using the `/call-status` which receives `call_sid` in the body 
+```bash
+{
+  "call_sid": "iaosndoainwdoi"
+}
+```
+
+
+
 Configure de env variable called "MAKE_WEBHOOK_URL". 
 
 ## Tutorial 

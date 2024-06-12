@@ -49,11 +49,17 @@ class TwilioClient:
         query_string = urllib.parse.urlencode(custom_variables)
 
         try:
-            self.client.calls.create(
+            call = self.client.calls.create(
                 url=f"{os.environ['NGROK_IP_ADDRESS']}/twilio-voice-webhook/{agent_id}?{query_string}",
                 to=to_number,
-                from_=from_number,
+                from_=from_number
             )
             print(f"Call from: {from_number} to: {to_number}")
+            return call
         except Exception as err:
             print(err)
+
+    def get_call_status(self, call_id):
+        call_status = self.client.calls(call_id).fetch()
+        return call_status
+

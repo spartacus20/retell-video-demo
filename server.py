@@ -1,9 +1,11 @@
 import os
 import urllib
+import httpx
+import asyncio
 import urllib.parse
 from retell import Retell
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from app.twilio_server import TwilioClient
 from app.webhook import router as webhook_router
 from twilio.twiml.voice_response import VoiceResponse
@@ -29,8 +31,25 @@ async def handle_twilio_voice_webhook(request: Request):
     body = await request.json()
     to_number = body.get('to_number')
     custom_variables = body.get('custom_variables', None)
-    twilio_client.create_phone_call(os.getenv("PHONE_NUMBER"), to_number, os.environ['RETELL_AGENT_ID'], custom_variables)#from,to
-    return PlainTextResponse("Done")
+    call = twilio_client.create_phone_call(os.getenv("PHONE_NUMBER"), to_number, os.environ['RETELL_AGENT_ID'], custom_variables)#from,to
+    return {"call_sid": call.sid, "msg": "done"}
+
+
+@app.post("/call-status")
+async def handle_status_callback(request: Request):
+   body = await request.json()
+   call_sid = body.get("call_sid")
+   call = twilio_client.get_call_status(call_sid)
+   return {
+        "sid": call.sid,
+        "duration": call.duration,
+        "status": call.status,
+        "direction": call.direction,
+        "from": call.from_formatted,
+        "to": call.to_formatted,
+        "start_time": call.start_time,
+        "end_time": call.end_time,
+    }
 
 
 @app.post("/twilio-voice-webhook/{agent_id_path}")
@@ -59,7 +78,7 @@ async def handle_twilio_voice_webhook(request: Request, agent_id_path: str):
             retell_llm_dynamic_variables=custom_variables,
             metadata={"twilio_call_sid": post_data["CallSid"]},
         )
-        print(f"Call response: {call_response}")
+        # print(f"Call response: {call_response}")
 
         response = VoiceResponse()
         start = response.connect()

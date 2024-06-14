@@ -47,9 +47,12 @@ class TwilioClient:
             custom_variables = {}
 
         query_string = urllib.parse.urlencode(custom_variables)
-
         try:
             call = self.client.calls.create(
+                machine_detection="Enable",
+                machine_detection_timeout=8,
+                async_amd="true",
+                async_amd_status_callback=f"{os.getenv('NGROK_IP_ADDRESS')}/twilio-voice-webhook/{agent_id}",
                 url=f"{os.environ['NGROK_IP_ADDRESS']}/twilio-voice-webhook/{agent_id}?{query_string}",
                 to=to_number,
                 from_=from_number
@@ -62,4 +65,3 @@ class TwilioClient:
     def get_call_status(self, call_id):
         call_status = self.client.calls(call_id).fetch()
         return call_status
-

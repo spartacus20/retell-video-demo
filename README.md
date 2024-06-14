@@ -55,6 +55,33 @@ You can use Make (Formelly Integromat), Zapier  or anthoer webhook that you have
 
 Configure de env variable called "MAKE_WEBHOOK_URL". 
 
+## Call Status
+
+You can access the twilio call status by using the `/call-status` which receives `call_sid` in the body 
+```bash
+{
+  "call_sid": "iaosndoainwdoi"
+}
+```
+
+Which is going to return an object with: 
+```bash
+{
+  "sid": "asdasdasdasdsad",
+  "duration": "4",
+  "status": "completed",
+  "direction": "outbound-api",
+  "from": "+444444444",
+  "to": "+444444444",
+  "start_time": "2024-06-12T12:13:20+00:00",
+  "end_time": "2024-06-12T12:13:24+00:00"
+}
+```
+
+
+
+
+
 ## Tutorial 
 
 [Video](https://www.youtube.com/watch?v=Z5l54C3b6Ks) 

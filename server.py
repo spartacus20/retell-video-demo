@@ -10,6 +10,7 @@ from app.twilio_server import TwilioClient
 from app.webhook import router as webhook_router
 from twilio.twiml.voice_response import VoiceResponse
 from fastapi.responses import JSONResponse, PlainTextResponse
+from pydantic import BaseModel
 
 
 app = FastAPI()
@@ -52,6 +53,24 @@ async def handle_status_callback(request: Request):
     }
 
 
+
+class Item(BaseModel):
+    phone: str
+
+
+async def send_data(url ,item: Item):
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            url, json=item.model_dump()
+        )
+        if response.status_code not in range(200, 300):
+            raise HTTPException(
+                status_code=response.status_code, detail="Error calling external API"
+            )
+        return response.json()
+
+
+
 @app.post("/twilio-voice-webhook/{agent_id_path}")
 async def handle_twilio_voice_webhook(request: Request, agent_id_path: str):
 
@@ -62,12 +81,16 @@ async def handle_twilio_voice_webhook(request: Request, agent_id_path: str):
         # Check if it is machine
         post_data = await request.form()
         if "AnsweredBy" in post_data and post_data["AnsweredBy"] == "machine_start":
-            print(post_data["AnsweredBy"])
+            asyncio.create_task(
+                send_data( os.getenv("GHL_VOICE_MAIL_URL"),Item(phone=post_data["Called"]))
+            )
             twilio_client.end_call(post_data["CallSid"])
             return PlainTextResponse("")
         elif "AnsweredBy" in post_data:
             return PlainTextResponse("")
-
+        asyncio.create_task(
+                send_data( os.getenv("GHL_REMOVE_VOICE_MAIL_URL"),Item(phone=post_data["Called"]))
+        )
         call_response = retell.call.register(
             agent_id=agent_id_path,
             audio_websocket_protocol="twilio",
@@ -78,8 +101,6 @@ async def handle_twilio_voice_webhook(request: Request, agent_id_path: str):
             retell_llm_dynamic_variables=custom_variables,
             metadata={"twilio_call_sid": post_data["CallSid"]},
         )
-        # print(f"Call response: {call_response}")
-
         response = VoiceResponse()
         start = response.connect()
         start.stream(

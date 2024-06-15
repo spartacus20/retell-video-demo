@@ -81,15 +81,16 @@ async def handle_twilio_voice_webhook(request: Request, agent_id_path: str):
         # Check if it is machine
         post_data = await request.form()
         if "AnsweredBy" in post_data and post_data["AnsweredBy"] == "machine_start":
+            call = twilio_client.get_call_status(post_data["CallSid"])
             asyncio.create_task(
-                send_data( os.getenv("GHL_VOICE_MAIL_URL"),Item(phone=post_data["Called"]))
+                send_data( os.getenv("GHL_VOICE_MAIL_URL"),Item(phone=call.to))
             )
             twilio_client.end_call(post_data["CallSid"])
             return PlainTextResponse("")
         elif "AnsweredBy" in post_data:
             return PlainTextResponse("")
         asyncio.create_task(
-                send_data( os.getenv("GHL_REMOVE_VOICE_MAIL_URL"),Item(phone=post_data["Called"]))
+                send_data( os.getenv("GHL_REMOVE_VOICE_MAIL_URL"),Item(phone=post_data["To"]))
         )
         call_response = retell.call.register(
             agent_id=agent_id_path,

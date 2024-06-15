@@ -39,7 +39,7 @@ custom_variables - this is an object
 Examples: 
 ```bash
 {
-  "to_number":  "+3516969694"
+  "to_number":  "+3516969694",
   "custom_variables":
    {
     "name": "pepe"

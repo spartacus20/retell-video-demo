@@ -1,5 +1,5 @@
 import uvicorn
-from app.server import app
+from server import app
 
 
 #If you want to use the server for "reload" you should change "app" and put "server:app" and then add

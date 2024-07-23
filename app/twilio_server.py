@@ -1,7 +1,9 @@
 from twilio.rest import Client
+from twilio.twiml.voice_response import VoiceResponse
 from dotenv import load_dotenv
 import os
 import urllib
+from pprint import pprint
 
 load_dotenv()
 class TwilioClient:
@@ -55,7 +57,9 @@ class TwilioClient:
                 async_amd_status_callback=f"{os.getenv('NGROK_IP_ADDRESS')}/twilio-voice-webhook/{agent_id}",
                 url=f"{os.environ['NGROK_IP_ADDRESS']}/twilio-voice-webhook/{agent_id}?{query_string}",
                 to=to_number,
-                from_=from_number
+                from_=from_number,
+                status_callback=f"{os.environ['STATUS_URL']}",
+                status_callback_event=["completed"]
             )
             print(f"Call from: {from_number} to: {to_number}")
             return call
@@ -65,3 +69,13 @@ class TwilioClient:
     def get_call_status(self, call_id):
         call_status = self.client.calls(call_id).fetch()
         return call_status
+
+    def update_call(self, call_id, item):
+        updated_call = self.client.calls(call_id).update(twiml=item)
+        pprint(updated_call)
+        return updated_call
+
+    def fetch(self, call_sid):
+        return self.client.calls(call_sid).fetch()
+
+

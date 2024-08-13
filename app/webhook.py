@@ -1,7 +1,6 @@
 import os
 import json
 import httpx
-import asyncio
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
@@ -11,7 +10,15 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
-retell = Retell(api_key=os.getenv("RETELL_API_KEY"))
+RETELL_API_KEY = os.getenv("RETELL_API_KEY")
+MAKE_WEBHOOK_URL = os.getenv("MAKE_WEBHOOK_URL")
+
+
+if not RETELL_API_KEY:
+    print("RETELL_API_KEY no está configurado en las variables de entorno")
+    raise ValueError("RETELL_API_KEY no está configurado")
+
+retell = Retell(api_key=RETELL_API_KEY)
 
 load_dotenv(override=True)
 
@@ -36,38 +43,34 @@ async def send_call_id(item: Item):
 async def handle_webhook(request: Request):
     try:
         post_data = await request.json()
-        valid_signature = retell.verify(
-            json.dumps(post_data, separators=(",", ":")),
-            api_key=str(os.getenv("RETELL_API_KEY")),
-            signature=str(request.headers.get("X-Retell-Signature")),
-        )
 
-        # if not valid_signature:
-        #     print(
-        #         "Received Unauthorized",
-        #         post_data["event"],
-        #         post_data["data"]["call_id"],
-        #     )
-        #     return JSONResponse(status_code=401, content={"message": "Unauthorized"})
+        if post_data["event"] == "call_ended":
 
-        # MODIFY DEPENDING ON YOUR NEEDS.
-        if post_data["event"] == "call_started":
-
-            print("Call started event", post_data["data"]["call_id"])
-        elif post_data["event"] == "call_ended":
-            #HTTP REQUEST TO MAKE WEBHOOK
-            asyncio.create_task(
-                send_call_id(Item(call_id=post_data["data"]["call_id"]))
-            )
-            print("Call ended event", post_data["data"]["call_id"])
+            if MAKE_WEBHOOK_URL:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        os.getenv("MAKE_WEBHOOK_URL"), json=post_data
+                    )
+                    if response.status_code != 201:
+                        raise HTTPException(
+                            status_code=response.status_code,
+                            detail="Error calling external API",
+                        )
+            else:
+                print("MAKE_WEBHOOK_URL not configured. Skipping external API call.")
+        elif post_data["event"] == "call_started":
+            pass
         elif post_data["event"] == "call_analyzed":
-            print("Call analyzed event", post_data["data"]["call_id"])
+            pass
         else:
             print("Unknown event", post_data["event"])
-
         return JSONResponse(status_code=200, content={"received": True})
-    except Exception as err:
-        print(f"Error in webhook: {err}")
-        return JSONResponse(
-            status_code=500, content={"message": "Internal Server Error"}
-        )
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return JSONResponse(status_code=400, content={"message": "Invalid JSON"})
+    except KeyError as e:
+        print(f"Missing required key in data: {e}")
+        return JSONResponse(status_code=400, content={"message": f"Missing required key: {e}"})
+    except Exception as e:
+        print(f"Unexpected error in webhook: {e}")
+        return JSONResponse(status_code=500, content={"message": "Webhook Internal Server Error"})

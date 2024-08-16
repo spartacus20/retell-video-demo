@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException
 from app.twilio_server import TwilioClient
 from app.webhook import router as webhook_router
+from app.analizer import router as analizer
 from twilio.twiml.voice_response import VoiceResponse
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel
@@ -25,6 +26,7 @@ load_dotenv(override=True)
 
 #Routers
 app.include_router(webhook_router)
+app.include_router(analizer)
 
 
 @app.post("/outbound-call")
